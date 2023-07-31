@@ -4,13 +4,13 @@ This serves as an example PIN registry server implementation as part of the Enok
 
 Under the hood, it uses HKDF to derive unique PINs for each user assuming the user identifier is  unique. Alternatively, the server maintains an incremental counter and the endpoint can be called without the identifier, an unique identifier is assigned each time it is called. 
 
-# Run
+# Run locally
 
 ```bash
-ROCKET_SEED=$SEED cargo run # $Seed here should be a 32-byte random value encoded in base64 e.g. head -c32 /dev/urandom | base64
+SEED=$SEED cargo run # $Seed here should be a 32-byte random value encoded in base64 e.g. head -c32 /dev/urandom | base64
 ```
 
-# Call
+# Curl
 
 
 ```bash
@@ -32,3 +32,7 @@ curl http://localhost:8000/get_pin/joy
 curl http://localhost:8000/get_pin/pavlos
 {"id":"0x7061766c6f73","pin":"0x09b918e2a7958461bd85b895d721fe3f"}%
 ```
+
+# Live
+
+Use https://enoki-server-7e33d356b89c.herokuapp.com instead of http://localhost:8000 
