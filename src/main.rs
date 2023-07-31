@@ -1,7 +1,8 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use api::{static_rocket_route_info_for_get_pin, static_rocket_route_info_for_get_pin_and_id};
-use std::sync::atomic::AtomicUsize;
+use fastcrypto::encoding::{Base64, Encoding};
+use std::{env, sync::atomic::AtomicUsize};
 #[macro_use]
 extern crate rocket;
 #[macro_use]
@@ -15,21 +16,17 @@ mod tests;
 
 pub struct EnokiConfig {
     app_name: String,
-    seed: Option<Vec<u8>>,
+    seed: Vec<u8>,
     counter: AtomicUsize,
 }
 
-// fn main() {
-//     rocket::ignite().manage(EnokiConfig { app_name: "sui_wallet".to_string(), seed: None, counter: AtomicUsize::new(0) }).mount("/", routes![get_pin, get_pin_and_id])
-//     .launch();
-// }
-
 fn rocket() -> rocket::Rocket {
+    let seed = env::var("SEED").expect("SEED missing");
     rocket::ignite()
         .mount("/", routes![get_pin, get_pin_and_id])
         .manage(EnokiConfig {
             app_name: "sui_wallet".to_string(),
-            seed: None,
+            seed: Base64::decode(&seed).expect("Invalid seed"),
             counter: AtomicUsize::new(0),
         })
 }
