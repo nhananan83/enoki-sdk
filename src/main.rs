@@ -19,7 +19,6 @@ mod tests;
 mod util;
 
 pub struct EnokiConfig {
-    app_name: String,
     seed: Vec<u8>,
     counter: AtomicUsize,
 }
@@ -29,7 +28,6 @@ fn rocket() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![get_pin, get_pin_and_id])
         .manage(EnokiConfig {
-            app_name: "sui_wallet".to_string(),
             seed: Base64::decode(&seed).expect("Invalid seed"),
             counter: AtomicUsize::new(0),
         })

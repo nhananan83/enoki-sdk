@@ -25,16 +25,6 @@ struct GetPINResponse {
     id: Vec<u8>,
 }
 
-pub fn derive_user_pin(master_seed: &[u8], id: &[u8], app_name: &[u8]) -> Vec<u8> {
-    hkdf_sha3_256(
-        &HkdfIkm::from_bytes(master_seed).unwrap(),
-        app_name,
-        id,
-        USER_PIN_LENGTH,
-    )
-    .unwrap()
-}
-
 #[get("/get_pin/<token>", format = "json")]
 pub fn get_pin(token: GetPINRequest, state: State<EnokiConfig>) -> JsonValue {
     // todo: cache jwks and actually verify here

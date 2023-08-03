@@ -13,7 +13,19 @@ use std::str::FromStr;
 use sui_types::crypto::DefaultHash;
 use sui_types::crypto::SignatureScheme;
 
-/// Calculate the sui address based on address seed and address params.
+/// Derive the user PIN based on master seed, id (e.g. `sub` that uniquely 
+/// identify a user), and the app_id (e.g. `iss || aud` that serves as a domain separator). 
+pub fn derive_user_pin(master_seed: &[u8], id: &[u8], app_id: &[u8]) -> Vec<u8> {
+    hkdf_sha3_256(
+        &HkdfIkm::from_bytes(master_seed).unwrap(),
+        app_id,
+        id,
+        USER_PIN_LENGTH,
+    )
+    .unwrap()
+}
+
+/// Calculate the Sui address based on address seed and address params.
 pub fn get_user_address(address_seed: String, iss: String, aud: String) -> [u8; 32] {
     let mut hasher = DefaultHash::default();
     hasher.update([SignatureScheme::ZkLoginAuthenticator.flag()]);
@@ -35,7 +47,7 @@ pub fn get_oidc_url(
     format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={}&response_type=id_token&redirect_uri={}&scope=open_id&nonce={}", client_id, redirect_url, nonce)
 }
 
-/// Return the OIDC URL for the given parameters. Crucially the nonce is computed.
+/// Calculate teh nonce for the given parameters.
 pub fn get_nonce(eph_pk_bytes: &[u8], max_epoch: u64, jwt_randomness: &str) -> String {
     // Nonce is defined as the Base64Url encoded of the poseidon hash of 4 inputs:
     // first half of eph_pubkey bytes in BigInt, second half of eph_pubkey, max_epoch, randomness.
