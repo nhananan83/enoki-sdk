@@ -2,12 +2,18 @@
 name = "enoki-server"
 version = "0.1.0"
 edition = "2021"
+authors = ["Mysten Labs <build@mystenlabs.com>"]
+license = "Apache-2.0"
 
 [dependencies]
 rocket = "0.4.11"
-fastcrypto = "0.1.5"
+fastcrypto = { git = "https://github.com/MystenLabs/fastcrypto", rev = "26eb51083488e9e3f58d624cacebe3dae3fa62d9" }
+fastcrypto-zkp = { git = "https://github.com/MystenLabs/fastcrypto", rev = "26eb51083488e9e3f58d624cacebe3dae3fa62d9", package = "fastcrypto-zkp" }
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
 rocket_contrib = { version = "0.4.11", features = ["json"] }
 serde_with = { version = "2.1.0", features = ["hex"] }
+sui-types = { git = "https://github.com/MystenLabs/sui", rev = "1905097f5941434413cc5262c33eb87942f08513", package = "sui-types" }
+bcs = "0.1.4"
+num-bigint = "0.4.3"

@@ -1,3 +1,6 @@
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use api::{static_rocket_route_info_for_get_pin, static_rocket_route_info_for_get_pin_and_id};
@@ -13,6 +16,7 @@ extern crate serde_derive;
 mod api;
 #[cfg(test)]
 mod tests;
+mod util;
 
 pub struct EnokiConfig {
     app_name: String,
