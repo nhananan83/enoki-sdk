@@ -31,7 +31,7 @@ pub fn derive_user_pin(master_seed: &[u8], id: &[u8], app_id: &[u8]) -> Vec<u8> 
 }
 
 /// Calculate the Sui address based on address seed and address params.
-pub fn get_user_address(address_seed: String, iss: String, aud: String) -> [u8; 32] {
+pub fn get_enoki_address(address_seed: String, iss: String, aud: String) -> [u8; 32] {
     let mut hasher = Blake2b256::default();
     hasher.update([ZK_LOGIN_AUTHENTICATOR_FLAG]);
     // unwrap is safe here

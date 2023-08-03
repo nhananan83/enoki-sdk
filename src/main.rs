@@ -14,7 +14,7 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 
 mod api;
-mod sdk;
+pub mod sdk;
 #[cfg(test)]
 mod tests;
 
