@@ -1,9 +1,10 @@
 [package]
-name = "enoki-server"
+name = "enoki-sdk"
 version = "0.1.0"
 edition = "2021"
 authors = ["Mysten Labs <build@mystenlabs.com>"]
 license = "Apache-2.0"
+repository = "https://github.com/MystenLabs/enoki-sdk"
 
 [dependencies]
 rocket = "0.4.11"
