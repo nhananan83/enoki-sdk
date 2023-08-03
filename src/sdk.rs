@@ -51,8 +51,8 @@ pub fn get_oidc_url(
 ) -> String {
     let nonce = get_nonce(eph_pk_bytes, max_epoch, jwt_randomness);
     match provider {
-        Google => format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={}&response_type=id_token&redirect_uri={}&scope=open_id&nonce={}", client_id, redirect_url, nonce),
-        Twitch => format!("https://id.twitch.tv/oauth2/authorize?client_id={}&force_verify=true&lang=en&login_type=login&redirect_uri={}&response_type=id_token&scope=openid&nonce={}", client_id, redirect_url, nonce),
+        OAuthProvider::Google => format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={}&response_type=id_token&redirect_uri={}&scope=open_id&nonce={}", client_id, redirect_url, nonce),
+        OAuthProvider::Twitch => format!("https://id.twitch.tv/oauth2/authorize?client_id={}&force_verify=true&lang=en&login_type=login&redirect_uri={}&response_type=id_token&scope=openid&nonce={}", client_id, redirect_url, nonce),
     }
 }
 
