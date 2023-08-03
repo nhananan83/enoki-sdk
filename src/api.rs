@@ -1,21 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::sdk::derive_user_pin;
 use crate::EnokiConfig;
 use fastcrypto::encoding::Hex;
-use fastcrypto::hmac::{hkdf_sha3_256, HkdfIkm};
 use fastcrypto::rsa::Base64UrlUnpadded;
-use fastcrypto::traits::ToFromBytes;
+use fastcrypto::rsa::Encoding as OtherEncoding;
 use rocket::State;
 use rocket_contrib::json::JsonValue;
 use serde_json::Value;
 use serde_with::serde_as;
 use std::sync::atomic::Ordering;
-pub const USER_PIN_LENGTH: usize = 16;
-use fastcrypto::rsa::Encoding as OtherEncoding;
 
 type GetPINRequest = String;
-
+const DEFAULT_APP_ID: &[u8; 14] = b"default_app_id";
 #[serde_as]
 #[derive(Serialize, Deserialize)]
 struct GetPINResponse {
@@ -44,7 +42,7 @@ pub fn get_pin(token: GetPINRequest, state: State<EnokiConfig>) -> JsonValue {
 pub fn get_pin_and_id(state: State<EnokiConfig>) -> JsonValue {
     let count = state.counter.fetch_add(1, Ordering::Relaxed) + 1;
     json!(GetPINResponse {
-        pin: derive_user_pin(&state.seed, &count.to_be_bytes(), state.app_name.as_bytes()),
+        pin: derive_user_pin(&state.seed, &count.to_be_bytes(), DEFAULT_APP_ID),
         id: count.to_be_bytes().to_vec()
     })
 }

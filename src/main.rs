@@ -14,9 +14,9 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 
 mod api;
+mod sdk;
 #[cfg(test)]
 mod tests;
-mod util;
 
 pub struct EnokiConfig {
     seed: Vec<u8>,

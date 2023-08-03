@@ -1,20 +1,25 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use fastcrypto::hash::HashFunction;
+use fastcrypto::hash::{Blake2b256, HashFunction};
+use fastcrypto::hmac::hkdf_sha3_256;
+use fastcrypto::hmac::HkdfIkm;
 use fastcrypto::rsa::Base64UrlUnpadded;
 use fastcrypto::rsa::Encoding;
+use fastcrypto::traits::ToFromBytes;
 use fastcrypto_zkp::bn254::poseidon::PoseidonWrapper;
 use fastcrypto_zkp::bn254::zk_login::big_int_str_to_bytes;
 use fastcrypto_zkp::bn254::zk_login::AddressParams;
+use fastcrypto_zkp::bn254::zk_login::OAuthProvider;
 use fastcrypto_zkp::bn254::zk_login_api::Bn254Fr;
 use num_bigint::{BigInt, Sign};
 use std::str::FromStr;
-use sui_types::crypto::DefaultHash;
-use sui_types::crypto::SignatureScheme;
 
-/// Derive the user PIN based on master seed, id (e.g. `sub` that uniquely 
-/// identify a user), and the app_id (e.g. `iss || aud` that serves as a domain separator). 
+const ZK_LOGIN_AUTHENTICATOR_FLAG: u8 = 0x05;
+const USER_PIN_LENGTH: usize = 16;
+
+/// Derive the user PIN based on master seed, id (e.g. `sub` that uniquely
+/// identify a user), and the app_id (e.g. `iss || aud` that serves as a domain separator).
 pub fn derive_user_pin(master_seed: &[u8], id: &[u8], app_id: &[u8]) -> Vec<u8> {
     hkdf_sha3_256(
         &HkdfIkm::from_bytes(master_seed).unwrap(),
@@ -27,8 +32,8 @@ pub fn derive_user_pin(master_seed: &[u8], id: &[u8], app_id: &[u8]) -> Vec<u8> 
 
 /// Calculate the Sui address based on address seed and address params.
 pub fn get_user_address(address_seed: String, iss: String, aud: String) -> [u8; 32] {
-    let mut hasher = DefaultHash::default();
-    hasher.update([SignatureScheme::ZkLoginAuthenticator.flag()]);
+    let mut hasher = Blake2b256::default();
+    hasher.update([ZK_LOGIN_AUTHENTICATOR_FLAG]);
     // unwrap is safe here
     hasher.update(bcs::to_bytes(&AddressParams::new(iss, aud)).unwrap());
     hasher.update(big_int_str_to_bytes(&address_seed));
@@ -37,6 +42,7 @@ pub fn get_user_address(address_seed: String, iss: String, aud: String) -> [u8; 
 
 /// Return the OIDC URL for the given parameters. Crucially the nonce is computed.
 pub fn get_oidc_url(
+    provider: OAuthProvider,
     eph_pk_bytes: &[u8],
     max_epoch: u64,
     client_id: &str,
@@ -44,7 +50,10 @@ pub fn get_oidc_url(
     jwt_randomness: &str,
 ) -> String {
     let nonce = get_nonce(eph_pk_bytes, max_epoch, jwt_randomness);
-    format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={}&response_type=id_token&redirect_uri={}&scope=open_id&nonce={}", client_id, redirect_url, nonce)
+    match provider {
+        Google => format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={}&response_type=id_token&redirect_uri={}&scope=open_id&nonce={}", client_id, redirect_url, nonce),
+        Twitch => format!("https://id.twitch.tv/oauth2/authorize?client_id={}&force_verify=true&lang=en&login_type=login&redirect_uri={}&response_type=id_token&scope=openid&nonce={}", client_id, redirect_url, nonce),
+    }
 }
 
 /// Calculate teh nonce for the given parameters.
